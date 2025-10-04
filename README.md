@@ -1,9 +1,9 @@
 # Description
-*Event: https://ldjam.com/events/ludum-dare/58 *
+*Event: https://ldjam.com/events/ludum-dare/58*
 
 *Date: Saturday October 4th to Tuesday October 7th, 2025 ; starts at 1:00 AM EEST*
 
-*Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code. *
+*Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
 
 *Theme: Collector*
 
