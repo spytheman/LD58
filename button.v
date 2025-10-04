@@ -53,12 +53,13 @@ fn (mut btn Button) clicked(e &gg.Event) bool {
 
 fn (mut btn Button) draw(ctx &gg.Context) {
 	cx, cy := btn.pos.x - btn.size.x / 2, btn.pos.y - btn.size.y / 2
-	mut tx, mut ty := cx, cy
+	mut dx, mut dy := 0, 0
 	if btn.shaking > 0 {
 		btn.shaking--
-		tx += rint(5)
-		ty += rint(5)
+		dx += rint(3)
+		dy += rint(3)
 	}
+	mut tx, mut ty := cx + dx, cy + dy
 	if btn.selected {
 		ctx.draw_rounded_rect_filled(tx, ty, btn.size.x, btn.size.y, 10, gg.blue)
 		ctx.draw_rounded_rect_filled(tx + 2, ty + 2, btn.size.x - 4, btn.size.y - 4, 10,
@@ -68,8 +69,7 @@ fn (mut btn Button) draw(ctx &gg.Context) {
 		ctx.draw_rounded_rect_filled(tx + 2, ty + 2, btn.size.x - 4, btn.size.y - 4, 10,
 			btn.color)
 	}
-
-	ctx.draw_text(int(btn.pos.x), int(btn.pos.y) - 10, btn.label,
+	ctx.draw_text(int(btn.pos.x) + dx / 2, int(btn.pos.y) + dy / 2 - 10, btn.label,
 		color: gg.black
 		size:  20
 		align: .center
