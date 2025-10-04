@@ -1,10 +1,13 @@
 # Description
-**Event: https://ldjam.com/events/ludum-dare/58 **
-**Date: Saturday October 4th to Tuesday October 7th, 2025 ; starts at 1:00 AM EEST**
-**Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code. **
-**Theme: Collector**
+*Event: https://ldjam.com/events/ludum-dare/58 *
 
-# Ideas
+*Date: Saturday October 4th to Tuesday October 7th, 2025 ; starts at 1:00 AM EEST*
+
+*Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code. *
+
+*Theme: Collector*
+
+# Ideas:
 * walk around maze(s) (mario, sokoban, flappybird, pacman, keen, wolfenstain/doom ?)
 * collect items
 * shoot monsters
@@ -13,7 +16,7 @@
 * until the player hits some dangerous objects/pits/monsters?
 * each item gives some ability/score
 
-## collectable items:
+## Collectable items:
 * seeds
 * nuts
 * garbage (recycle bin/trash bag/pile)
@@ -27,11 +30,11 @@
 * books
 * souls
 
-# TODO
+# TODO:
 * Gameplay
 * Sound
 * Music
 * Main menu
 * High scores
 
-# Done
+# DONE:
