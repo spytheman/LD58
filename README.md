@@ -16,6 +16,21 @@
 * until the player hits some dangerous objects/pits/monsters?
 * each item gives some ability/score
 
+# Alternative idea:
+Goal: collect all the garbage items from a garden/forest into different bins.
+Time bar gradually fills up, when it is full, the game round ends and stats are shown.
+After a click, another level loads up, and the game continues.
+Soft ambient forest sounds/music is played in the background the whole time.
+Sounds can be toggled on/off with the `m` key, or by clicking a button, next to the bins.
+Items are randomly placed on the screen.
+Items gradually become transparent, until they disappear completely.
+Different items last for longer.
+4 bins at the bottom of the screen, each selectable by clicking, or by the 1,2,3,4 keys.
+Each item has to be clicked, while the matching bin at the bottom is selected -> + points.
+If the wrong item is put in a bin, -> - points.
+Different sounds are played when items are matched to the bins, like "nice", "yesss", "Yippee" etc.
+Different sounds are played when items are misplaced, like "nooo", "tz", "nope" etc.
+
 ## Collectable items:
 * seeds
 * nuts
