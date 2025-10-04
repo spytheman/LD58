@@ -16,11 +16,12 @@ enum State {
 @[heap]
 struct Game {
 mut:
-	ctx   &gg.Context = unsafe { nil }
-	level int         = 1
-	state State       = .running
-	bins  []Button
-	sbin  ?Kind
+	ctx        &gg.Context = unsafe { nil }
+	level      int         = 1
+	state      State       = .running
+	bins       []Button
+	sbin       ?Kind
+	background gg.Image
 }
 
 fn (mut g Game) restart() {
@@ -90,6 +91,7 @@ fn on_event(e &gg.Event, mut g Game) {
 
 fn on_frame(mut g Game) {
 	g.ctx.begin()
+	g.ctx.draw_image(0, hheight, g.background.width, g.background.height, g.background)
 	g.ctx.draw_text(5, 0, 'level: ${g.level} | state: ${g.state} | bin: ${g.sbin}',
 		color: gg.green
 		size:  32
@@ -141,5 +143,7 @@ fn main() {
 		font_path:    asset.get_path('./assets', 'fonts/Imprima-Regular.ttf')
 		sample_count: 2
 	)
+	garden_path := asset.get_path('./assets', 'garden_path.png')
+	g.background = g.ctx.create_image(garden_path)!
 	g.ctx.run()
 }

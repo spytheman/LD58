@@ -61,8 +61,9 @@ fn (mut btn Button) draw(ctx &gg.Context) {
 	}
 	mut tx, mut ty := cx + dx, cy + dy
 	if btn.selected {
-		ctx.draw_rounded_rect_filled(tx, ty, btn.size.x, btn.size.y, 10, gg.blue)
-		ctx.draw_rounded_rect_filled(tx + 2, ty + 2, btn.size.x - 4, btn.size.y - 4, 10,
+		ctx.draw_rounded_rect_filled(tx - 5, ty - 5, btn.size.x + 10, btn.size.y + 10,
+			20, gg.blue)
+		ctx.draw_rounded_rect_filled(tx + 3, ty + 3, btn.size.x - 6, btn.size.y - 6, 20,
 			gg.light_blue)
 	} else {
 		ctx.draw_rounded_rect_filled(tx, ty, btn.size.x, btn.size.y, 10, gg.dark_gray)
