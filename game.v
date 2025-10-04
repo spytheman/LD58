@@ -118,7 +118,7 @@ fn main() {
 		},
 		Button{
 			kind:  .plastic
-			pos:   Vec2{5710, 510}
+			pos:   Vec2{570, 510}
 			size:  Vec2{80, 33}
 			label: 'Plastic'
 		},
