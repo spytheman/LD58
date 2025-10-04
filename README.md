@@ -5,11 +5,17 @@
 **Theme: Collector**
 
 # Ideas
-* walk around maze(s)
+* walk around maze(s) (mario, sokoban, flappybird, pacman, keen, wolfenstain/doom ?)
 * collect items
-* until a timer expires?
+* shoot monsters
+* jump over pits and on platforms?
+* a timer expires (remaining time gives bonus points)?
+* until the player hits some dangerous objects/pits/monsters?
+* each item gives some ability/score
 
 ## collectable items:
+* seeds
+* nuts
 * garbage (recycle bin/trash bag/pile)
 * money (coins/wads of cache/diamonds)
 * stamps
