@@ -10,22 +10,22 @@ fn rint(volume int) int {
 	return -volume + rand.intn(volume * 2) or { 0 }
 }
 
-enum ButtonState {
-	normal
-	highlighted
-	clicked
+enum Kind {
+	junk
+	metal
+	plastic
+	organic
 }
 
 struct Button {
 mut:
-	pos      Vec2   = Vec2{400, 300}
-	size     Vec2   = Vec2{400, 100}
-	label    string = 'Click me!'
-	state    ButtonState
+	pos      Vec2     = Vec2{400, 300}
+	size     Vec2     = Vec2{400, 100}
+	label    string   = 'Click me!'
 	color    gg.Color = gg.white
 	shaking  int
 	selected bool
-	idx      int
+	kind     Kind
 }
 
 fn (btn &Button) contains(x f32, y f32) bool {

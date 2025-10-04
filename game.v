@@ -20,22 +20,22 @@ mut:
 	level int         = 1
 	state State       = .running
 	bins  []Button
-	sbin  ?int
+	sbin  ?Kind
 }
 
 fn (mut g Game) restart() {
 	eprintln('>> ${@LOCATION}')
 }
 
-fn (mut g Game) choose_bin(idx int) {
+fn (mut g Game) choose_bin(kind Kind) {
 	for mut o in g.bins {
 		o.selected = false
 		o.shaking = 0
 	}
 	for mut b in g.bins {
-		if b.idx == idx {
+		if b.kind == kind {
 			b.selected = true
-			g.sbin = b.idx
+			g.sbin = b.kind
 			b.shaking = 16
 		}
 	}
@@ -45,7 +45,7 @@ fn (mut g Game) on_mouse(x f32, y f32, e &gg.Event) {
 	// eprintln('>> ${@LOCATION}: x: ${x} | y: ${y}')
 	for mut b in g.bins {
 		if b.clicked(e) {
-			g.choose_bin(b.idx)
+			g.choose_bin(b.kind)
 		}
 	}
 }
@@ -75,10 +75,10 @@ fn on_event(e &gg.Event, mut g Game) {
 	}
 	if e.typ == .char {
 		match rune(e.char_code) {
-			`1` { g.choose_bin(0) }
-			`2` { g.choose_bin(1) }
-			`3` { g.choose_bin(2) }
-			`4` { g.choose_bin(3) }
+			`1` { g.choose_bin(.junk) }
+			`2` { g.choose_bin(.metal) }
+			`3` { g.choose_bin(.plastic) }
+			`4` { g.choose_bin(.organic) }
 			else {}
 		}
 		return
@@ -105,26 +105,26 @@ fn main() {
 	mut g := &Game{}
 	g.bins = [
 		Button{
-			idx:   0
-			pos:   Vec2{180, 510}
+			kind:  .junk
+			pos:   Vec2{200, 510}
 			size:  Vec2{80, 33}
 			label: 'Junk'
 		},
 		Button{
-			idx:   1
-			pos:   Vec2{380, 510}
+			kind:  .metal
+			pos:   Vec2{390, 510}
 			size:  Vec2{80, 33}
 			label: 'Metal'
 		},
 		Button{
-			idx:   2
-			pos:   Vec2{580, 510}
+			kind:  .plastic
+			pos:   Vec2{5710, 510}
 			size:  Vec2{80, 33}
 			label: 'Plastic'
 		},
 		Button{
-			idx:   3
-			pos:   Vec2{780, 510}
+			kind:  .organic
+			pos:   Vec2{760, 510}
 			size:  Vec2{80, 33}
 			label: 'Organic'
 		},
