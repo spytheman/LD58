@@ -111,6 +111,12 @@ fn on_event(e &gg.Event, mut g Game) {
 	g.on_mouse(x, y, e)
 }
 
+fn (mut g Game) next_level() {
+	g.level++
+	g.player.pos = g.spos
+	g.player.speed.zero()
+}
+
 fn (mut g Game) player_move() {
 	size := 2
 	npos := g.player.pos + g.player.speed.mul_scalar(12)
@@ -123,6 +129,10 @@ fn (mut g Game) player_move() {
 		}
 	}
 	g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
+	nc := g.bgpixel(g.player.pos)
+	if nc == gg.blue {
+		g.next_level()
+	}
 }
 
 fn on_frame(mut g Game) {
@@ -142,8 +152,8 @@ fn on_frame(mut g Game) {
 	)
 	g.player_move()
 	g.bins_draw()
-	g.ctx.draw_text(gwidth - 85, gheight - 24, 'Level: ${g.level}', color: gg.green, size: 14)
-	g.ctx.draw_text(15, gheight - 24, '${g.state}', color: gg.green, size: 14)
+	g.ctx.draw_text(gwidth - 85, gheight - 24, 'Level: ${g.level}', color: gg.gray)
+	g.ctx.draw_text(15, gheight - 24, '${g.state}', color: gg.gray)
 	g.ctx.end()
 }
 
