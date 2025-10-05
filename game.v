@@ -1,8 +1,8 @@
 module main
 
 import gg
-import log
 import os.asset
+import rand
 import math
 
 const gwidth = 948
@@ -20,6 +20,7 @@ mut:
 	ctx          &gg.Context = unsafe { nil }
 	level        int         = 1
 	state        State       = .running
+	mute_btn     Button
 	bins         []Button
 	sbin         ?Kind
 	level_images []gg.Image
@@ -48,13 +49,17 @@ mut:
 }
 
 fn (mut g Game) restart() {
-	g.player.pos = g.spos
+	g.next_level(g.level)
 	g.song.restart()
 }
 
 fn (mut g Game) on_mouse(x f32, y f32, e &gg.Event) {
 	// eprintln('>> ${@LOCATION}: x: ${x} | y: ${y}')
 	g.bins_on_mouse(e)
+	if g.mute_btn.clicked(e) {
+		g.song.mute()
+		g.mute_btn.label = if g.song.mute { 'Unmute' } else { 'Mute' }
+	}
 }
 
 fn (mut g Game) change_state(nstate State) {
@@ -62,22 +67,35 @@ fn (mut g Game) change_state(nstate State) {
 	g.song.pause(nstate == .paused)
 }
 
-fn on_event(e &gg.Event, mut g Game) {
+@[if develop ?]
+fn (mut g Game) on_develop(e &gg.Event) {
 	if e.typ == .key_down {
 		match e.key_code {
-			.escape { g.ctx.quit() }
 			.r { g.restart() }
+			.page_up { g.next_level(g.level + 1) }
+			.page_down { g.next_level(g.level - 1) }
 			else {}
 		}
+	}
+}
+
+fn on_event(e &gg.Event, mut g Game) {
+	g.on_develop(e)
+	if e.typ == .key_down && e.key_code == .escape {
+		g.ctx.quit()
+	}
+	if e.typ == .char && rune(e.char_code) == `m` {
+		g.song.mute()
 	}
 	if g.state == .finished {
 		return
 	}
-	if g.state == .paused && e.typ == .key_up && e.key_code == .space {
+	pause_key := e.key_code in [.space, .p]
+	if g.state == .paused && e.typ == .key_up && pause_key {
 		g.change_state(.running)
 		return
 	}
-	if g.state == .running && e.typ == .key_up && e.key_code == .space {
+	if g.state == .running && e.typ == .key_up && pause_key {
 		g.change_state(.paused)
 		return
 	}
@@ -87,9 +105,6 @@ fn on_event(e &gg.Event, mut g Game) {
 	if e.typ == .key_down {
 		g.bins_on_key(e)
 		match e.key_code {
-			.page_up {
-				g.next_level()
-			}
 			.w, .up {
 				g.player.speed = Vec2{0, -1}
 				g.player.angle = 0
@@ -115,14 +130,12 @@ fn on_event(e &gg.Event, mut g Game) {
 	g.on_mouse(x, y, e)
 }
 
-fn (mut g Game) next_level() {
-	g.level++
-	dump(g.level)
-	dump(g.level_images.len)
-	lidx := g.level % g.level_images.len
-	dump(lidx)
-	g.background = g.level_images[lidx]
-	dump(g.background)
+fn (mut g Game) next_level(nlevel int) {
+	g.level = nlevel
+	if g.level_images.len > 0 {
+		lidx := int_max(0, g.level) % g.level_images.len
+		g.background = g.level_images[lidx]
+	}
 	g.find_start_and_exit_spots()
 	g.player.speed.zero()
 }
@@ -141,7 +154,7 @@ fn (mut g Game) player_move() {
 	g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
 	nc := g.bgpixel(g.player.pos)
 	if nc == gg.blue {
-		g.next_level()
+		g.next_level(g.level + 1)
 	}
 }
 
@@ -149,8 +162,8 @@ fn on_frame(mut g Game) {
 	g.song.work() or {}
 	g.ctx.begin()
 	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
-	for p in g.potential_item_positions {
-		g.ctx.draw_rect_filled(p.x, p.y, 5, 5, gg.green)
+	for item in g.items {
+		g.ctx.draw_rect_filled(item.pos.x, item.pos.y, 5, 5, gg.green)
 	}
 	g.ctx.draw_image_with_config(
 		img_rect: gg.Rect{
@@ -162,8 +175,9 @@ fn on_frame(mut g Game) {
 	)
 	g.player_move()
 	g.bins_draw()
-	g.ctx.draw_text(gwidth - 85, gheight - 24, 'Level: ${g.level}', color: gg.gray)
-	g.ctx.draw_text(15, gheight - 24, '${g.state}', color: gg.gray)
+	g.mute_btn.draw(g.ctx)
+	g.ctx.draw_text(gwidth - 85, gheight - 34, '${g.state}', color: gg.gray)
+	g.ctx.draw_text(gwidth - 85, gheight - 18, 'Level: ${g.level}', color: gg.gray)
 	g.ctx.end()
 }
 
@@ -174,19 +188,22 @@ fn (mut g Game) bgpixel(pos Vec2) gg.Color {
 }
 
 fn (mut g Game) find_start_and_exit_spots() {
-	log.info('>start find_start_and_exit_spots')
-	defer { log.info('>end') }
 	g.potential_item_positions.clear()
+	g.items.clear()
 	g.player.pos.zero()
 	g.spos.zero()
 	g.epos.zero()
 	bp := unsafe { &gg.Color(g.background.data) }
+	if isnil(bp) {
+		return
+	}
 	for y in 0 .. gheight {
 		for x in 0 .. gwidth {
 			c := unsafe { *bp }
 			unsafe { bp++ }
-			if c.a >= 120 && c.a <= 128 {
+			if c.a >= 100 && c.a <= 200 {
 				pos := Vec2{x, y}
+				_ = pos.str() // TODO: this is needed for tcc, investigate why
 				if c.r == 255 {
 					g.spos = pos
 					g.player.pos = g.spos
@@ -200,10 +217,22 @@ fn (mut g Game) find_start_and_exit_spots() {
 			}
 		}
 	}
+	positions := rand.choose(g.potential_item_positions, int_max(5, g.potential_item_positions.len / 5)) or {
+		[]
+	}
+	for ipos in positions {
+		g.items << Item{
+			pos:  ipos
+			kind: unsafe { Kind(rand.int_in_range(0, 4) or { 0 }) }
+		}
+	}
 }
 
 fn main() {
 	mut g := &Game{}
+	g.mute_btn.pos = Vec2{45, gheight - 16}
+	g.mute_btn.size = Vec2{60, 25}
+	g.mute_btn.label = 'Mute'
 	g.bins_init()
 	g.restart()
 	g.song.play_ogg_file(asset.get_path('./assets', 'songs/collecting_garbage.ogg'))!
@@ -223,8 +252,7 @@ fn main() {
 		ipath := asset.get_path('./assets', 'images/${i}.png')
 		g.level_images << g.ctx.create_image(ipath)!
 	}
-	g.background = g.level_images[3]
-	dump(g.background.path)
+	g.background = g.level_images[1]
 	g.find_start_and_exit_spots()
 	g.ctx.run()
 }

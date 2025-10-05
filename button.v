@@ -20,8 +20,8 @@ enum Kind {
 
 struct Button {
 mut:
-	pos      Vec2     = Vec2{400, 300}
-	size     Vec2     = Vec2{400, 100}
+	pos      Vec2     = Vec2{80, 30}
+	size     Vec2     = Vec2{90, 30}
 	label    string   = 'Click me!'
 	color    gg.Color = gg.white
 	shaking  int
@@ -71,7 +71,8 @@ fn (mut btn Button) draw(ctx &gg.Context) {
 		ctx.draw_rounded_rect_filled(tx + 2, ty + 2, btn.size.x - 4, btn.size.y - 4, 10,
 			btn.color)
 	}
-	ctx.draw_text(int(btn.pos.x) + dx / 2, int(btn.pos.y) + dy / 2 - 6, btn.label,
+	yy := int(btn.size.y / 2 - 6.5)
+	ctx.draw_text(int(btn.pos.x) + dx / 2, int(btn.pos.y) + dy / 2 - yy, btn.label,
 		color: gg.black
 		size:  16
 		align: .center

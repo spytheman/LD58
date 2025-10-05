@@ -7,6 +7,7 @@ mut:
 	sample_rate        int
 	pos                int
 	paused             bool // pause decoding
+	mute               bool
 	finished           bool
 	push_slack_ms      int = 5
 	stream_rate        u32
@@ -27,6 +28,10 @@ pub fn new_song_player() &SongPlayer {
 	}
 	p.init()
 	return p
+}
+
+fn (mut p SongPlayer) mute() {
+	p.mute = !p.mute
 }
 
 fn (mut p SongPlayer) pause(state bool) {
@@ -114,6 +119,9 @@ fn (mut p SongPlayer) work() ! {
 			if samples == 0 {
 				p.finished = true
 				break
+			}
+			if p.mute {
+				unsafe { vmemset(pframes, 0, frames.len * 4) }
 			}
 			written_frames := audio.push(pframes, samples)
 			decoded_frames += written_frames
