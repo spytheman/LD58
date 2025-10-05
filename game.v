@@ -95,7 +95,7 @@ fn (mut g Game) find_start_and_exit_spots() {
 	if isnil(bp) {
 		return
 	}
-	for y in 0 .. gheight {
+	outer_y: for y in 0 .. gheight - 1 {
 		for x in 0 .. gwidth {
 			c := unsafe { *bp }
 			unsafe { bp++ }
@@ -105,6 +105,7 @@ fn (mut g Game) find_start_and_exit_spots() {
 				if c.r == 255 {
 					g.spos = pos
 					g.player.pos = g.spos
+					break outer_y
 				}
 				if c.b == 255 {
 					g.epos = pos
