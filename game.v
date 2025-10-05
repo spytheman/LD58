@@ -58,8 +58,7 @@ fn (mut g Game) on_mouse(x f32, y f32, e &gg.Event) {
 	// eprintln('>> ${@LOCATION}: x: ${x} | y: ${y}')
 	g.bins_on_mouse(e)
 	if g.mute_btn.clicked(e) {
-		g.song.mute()
-		g.mute_btn.label = if g.song.mute { 'Unmute' } else { 'Mute' }
+		g.mute_trigger()
 	}
 }
 
@@ -195,7 +194,7 @@ fn on_event(e &gg.Event, mut g Game) {
 		g.ctx.quit()
 	}
 	if e.typ == .char && rune(e.char_code) == `m` {
-		g.song.mute()
+		g.mute_trigger()
 	}
 	if g.state == .finished {
 		return
@@ -240,11 +239,21 @@ fn on_event(e &gg.Event, mut g Game) {
 	g.on_mouse(x, y, e)
 }
 
+fn (mut g Game) mute_init() {
+	g.mute_btn.pos = Vec2{45, gheight - 18}
+	g.mute_btn.size = Vec2{60, 33}
+	g.mute_btn.label = 'Mute'
+	g.mute_btn.label_y = 0
+}
+
+fn (mut g Game) mute_trigger() {
+	g.song.mute()
+	g.mute_btn.label = if g.song.mute { 'unMute' } else { 'Mute' }
+}
+
 fn main() {
 	mut g := &Game{}
-	g.mute_btn.pos = Vec2{45, gheight - 16}
-	g.mute_btn.size = Vec2{60, 25}
-	g.mute_btn.label = 'Mute'
+	g.mute_init()
 	g.bins_init()
 	g.restart()
 	g.song.play_ogg_file(asset.get_path('./assets', 'songs/collecting_garbage.ogg'))!
