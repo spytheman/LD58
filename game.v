@@ -151,6 +151,9 @@ fn (mut g Game) player_move() {
 			}
 		}
 	}
+	if npos.y > gheight - 35 {
+		return
+	}
 	g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
 	g.player.meters += u64(g.player.speed.magnitude())
 	nc := g.bgpixel(g.player.pos)
