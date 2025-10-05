@@ -23,6 +23,7 @@ mut:
 	pos      Vec2   = Vec2{80, 30}
 	size     Vec2   = Vec2{90, 30}
 	label    string = 'Click me!'
+	counter  int
 	label_y  int
 	color    gg.Color = gg.white
 	shaking  int
@@ -74,7 +75,7 @@ fn (mut btn Button) draw(ctx &gg.Context) {
 	}
 	yy := int(btn.size.y / 2 - 8.5)
 	ctx.draw_text(int(btn.pos.x) + dx / 2, int(btn.pos.y) + dy / 2 - yy - btn.label_y,
-		btn.label,
+		'${btn.label}${if btn.counter != -1 { '= ${btn.counter}' } else { '' }}',
 		color: gg.black
 		size:  16
 		align: .center

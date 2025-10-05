@@ -159,6 +159,11 @@ fn (mut g Game) player_move() {
 	}
 	for item_idx, mut item in g.items {
 		if g.player.pos.distance(item.pos) < g.player.img.width / 2 {
+			for mut b in g.bins {
+				if item.kind == b.kind {
+					b.counter++
+				}
+			}
 			g.items.delete(item_idx)
 			break
 		}
@@ -244,6 +249,7 @@ fn (mut g Game) mute_init() {
 	g.mute_btn.size = Vec2{60, 33}
 	g.mute_btn.label = 'Mute'
 	g.mute_btn.label_y = 0
+	g.mute_btn.counter = -1
 }
 
 fn (mut g Game) mute_trigger() {
