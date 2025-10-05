@@ -215,7 +215,7 @@ fn main() {
 		user_data:    g
 		frame_fn:     on_frame
 		event_fn:     on_event
-		font_path:    asset.get_path('./assets', 'fonts/NicoBold-Regular.ttf')
+		font_path:    asset.get_path('./assets', 'fonts/Imprima-Regular.ttf')
 		sample_count: 2
 	)
 	g.player.img = g.ctx.create_image(asset.get_path('./assets', 'images/player.png'))!
@@ -223,7 +223,8 @@ fn main() {
 		ipath := asset.get_path('./assets', 'images/${i}.png')
 		g.level_images << g.ctx.create_image(ipath)!
 	}
-	g.background = g.level_images[1]
+	g.background = g.level_images[3]
+	dump(g.background.path)
 	g.find_start_and_exit_spots()
 	g.ctx.run()
 }

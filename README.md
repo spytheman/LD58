@@ -6,7 +6,8 @@
 *Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
 
 ## Used resources:
-* NicoBold-Regular.ttf from https://emhuo.itch.io/nico-pixel-fonts-pack
+* Imprima-Regular.ttf from https://www.1001freefonts.com/imprima.font
+* mazes from https://www.mazegenerator.net/
 
 ## Ideas:
 * walk around maze(s) (mario, sokoban, flappybird, pacman, keen, wolfenstain/doom ?)
