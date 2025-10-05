@@ -56,7 +56,7 @@ fn (mut g Game) bins_on_mouse(e &gg.Event) {
 }
 
 fn (mut g Game) bins_on_key(e &gg.Event) {
-	match rune(e.char_code) {
+	match rune(e.key_code) {
 		`1` { g.bins_choose(.glass) }
 		`2` { g.bins_choose(.metal) }
 		`3` { g.bins_choose(.paper) }
@@ -74,8 +74,8 @@ fn (mut g Game) bins_choose(kind Kind) {
 	for mut b in g.bins {
 		if b.kind == kind {
 			b.selected = true
-			g.sbin = b.kind
 			b.shaking = 16
+			g.sbin = b.kind
 		}
 	}
 }

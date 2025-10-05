@@ -68,7 +68,6 @@ fn on_event(e &gg.Event, mut g Game) {
 			.r { g.restart() }
 			else {}
 		}
-		return
 	}
 	if g.state == .finished {
 		return
@@ -84,22 +83,22 @@ fn on_event(e &gg.Event, mut g Game) {
 	if g.state != .running {
 		return
 	}
-	if e.typ == .char {
+	if e.typ == .key_down {
 		g.bins_on_key(e)
-		match rune(e.char_code) {
-			`w` {
+		match e.key_code {
+			.w, .up {
 				g.player.speed = Vec2{0, -1}
 				g.player.angle = 0
 			}
-			`s` {
+			.s, .down {
 				g.player.speed = Vec2{0, 1}
 				g.player.angle = math.pi
 			}
-			`a` {
+			.a, .left {
 				g.player.speed = Vec2{-1, 0}
 				g.player.angle = math.pi / 2
 			}
-			`d` {
+			.d, .right {
 				g.player.speed = Vec2{1, 0}
 				g.player.angle = -math.pi / 2
 			}
@@ -113,16 +112,21 @@ fn on_event(e &gg.Event, mut g Game) {
 }
 
 fn (mut g Game) player_move() {
-	bpos := g.player.pos + g.player.speed.mul_scalar(10)
-	c := g.bgpixel(bpos)
-	if c.a == 0 {
-		g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
+	size := 2
+	npos := g.player.pos + g.player.speed.mul_scalar(12)
+	for y in int(npos.y - size) .. int(npos.y + size) {
+		for x in int(npos.x - size) .. int(npos.x + size) {
+			c := g.bgpixel(x: x, y: y)
+			if c == gg.black {
+				return
+			}
+		}
 	}
+	g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
 }
 
 fn on_frame(mut g Game) {
 	g.song.work() or {}
-	g.player_move()
 	g.ctx.begin()
 	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
 	for p in g.potential_item_positions {
@@ -136,6 +140,7 @@ fn on_frame(mut g Game) {
 		img:      &g.player.img
 		rotation: f32(math.degrees(g.player.angle))
 	)
+	g.player_move()
 	g.bins_draw()
 	g.ctx.draw_text(gwidth - 85, gheight - 24, 'Level: ${g.level}', color: gg.green, size: 14)
 	g.ctx.draw_text(15, gheight - 24, '${g.state}', color: gg.green, size: 14)
