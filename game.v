@@ -20,6 +20,7 @@ mut:
 	ctx             &gg.Context = unsafe { nil }
 	day             int         = 1
 	state           State
+	rotation        f32
 	mute_btn        Button
 	bins            []Button
 	sbin            ?Kind
@@ -178,10 +179,14 @@ fn (mut g Game) player_move() {
 }
 
 fn on_frame(mut g Game) {
+	if g.state != .paused {
+		g.rotation++
+	}
+	r := f32(math.degrees(g.rotation) / 90)
 	g.song.work() or {}
 	g.ctx.begin()
 	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
-	for item in g.items {
+	for idx, item in g.items {
 		g.ctx.draw_image_with_config(
 			img_rect: gg.Rect{
 				x:      item.pos.x - item.img.width / 2
@@ -190,7 +195,7 @@ fn on_frame(mut g Game) {
 				height: 32
 			}
 			img:      &item.img
-			rotation: f32(math.degrees(g.ctx.frame) / 120)
+			rotation: r + idx * 10
 		)
 	}
 	g.ctx.draw_image_with_config(
