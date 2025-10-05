@@ -249,6 +249,7 @@ fn (mut g Game) mute_init() {
 fn (mut g Game) mute_trigger() {
 	g.song.mute()
 	g.mute_btn.label = if g.song.mute { 'unMute' } else { 'Mute' }
+	g.mute_btn.shaking = 8
 }
 
 fn main() {
