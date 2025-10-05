@@ -17,19 +17,20 @@ enum State {
 @[heap]
 struct Game {
 mut:
-	ctx        &gg.Context = unsafe { nil }
-	day        int         = 1
-	state      State
-	mute_btn   Button
-	bins       []Button
-	sbin       ?Kind
-	day_images []gg.Image
-	background gg.Image
-	song       &SongPlayer = new_song_player()
-	spos       Vec2
-	epos       Vec2
-	player     Player
-	items      []Item
+	ctx             &gg.Context = unsafe { nil }
+	day             int         = 1
+	state           State
+	mute_btn        Button
+	bins            []Button
+	sbin            ?Kind
+	day_images      []gg.Image
+	all_item_images map[string]gg.Image
+	background      gg.Image
+	song            &SongPlayer = new_song_player()
+	spos            Vec2
+	epos            Vec2
+	player          Player
+	items           []Item
 	//
 	potential_item_positions []Vec2
 }
@@ -55,7 +56,6 @@ fn (mut g Game) restart() {
 }
 
 fn (mut g Game) on_mouse(x f32, y f32, e &gg.Event) {
-	// eprintln('>> ${@LOCATION}: x: ${x} | y: ${y}')
 	g.bins_on_mouse(e)
 	if g.mute_btn.clicked(e) {
 		g.mute_trigger()
@@ -123,9 +123,12 @@ fn (mut g Game) add_items_on_some_positions() {
 		return
 	}
 	for ipos in positions {
+		ikind := unsafe { Kind(rand.int_in_range(0, 5) or { 0 }) }
+		kpath := rand.element(paths_by_kind[ikind]) or { '' }
 		g.items << Item{
 			pos:  ipos
-			kind: unsafe { Kind(rand.int_in_range(0, 4) or { 0 }) }
+			kind: ikind
+			img:  unsafe { g.all_item_images[kpath] }
 		}
 	}
 }
@@ -178,7 +181,16 @@ fn on_frame(mut g Game) {
 	g.ctx.begin()
 	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
 	for item in g.items {
-		g.ctx.draw_rect_filled(item.pos.x, item.pos.y, 5, 5, gg.green)
+		g.ctx.draw_image_with_config(
+			img_rect: gg.Rect{
+				x:      item.pos.x - item.img.width / 2
+				y:      item.pos.y - item.img.height / 2
+				width:  32
+				height: 32
+			}
+			img:      &item.img
+			rotation: f32(math.degrees(g.ctx.frame) / 120)
+		)
 	}
 	g.ctx.draw_image_with_config(
 		img_rect: gg.Rect{
@@ -282,6 +294,10 @@ fn main() {
 	for i in 0 .. 7 + 1 {
 		ipath := asset.get_path('./assets', 'images/${i}.png')
 		g.day_images << g.ctx.create_image(ipath)!
+	}
+	for path in all_item_paths {
+		ipath := asset.get_path('./assets', path)
+		g.all_item_images[path] = g.ctx.create_image(ipath)!
 	}
 	g.background = g.day_images[1]
 	g.find_start_and_exit_spots()
