@@ -26,29 +26,12 @@ mut:
 }
 
 fn (mut g Game) restart() {
-}
-
-fn (mut g Game) choose_bin(kind Kind) {
-	for mut o in g.bins {
-		o.selected = false
-		o.shaking = 0
-	}
-	for mut b in g.bins {
-		if b.kind == kind {
-			b.selected = true
-			g.sbin = b.kind
-			b.shaking = 16
-		}
-	}
+	g.song.restart()
 }
 
 fn (mut g Game) on_mouse(x f32, y f32, e &gg.Event) {
 	// eprintln('>> ${@LOCATION}: x: ${x} | y: ${y}')
-	for mut b in g.bins {
-		if b.clicked(e) {
-			g.choose_bin(b.kind)
-		}
-	}
+	g.bins_on_mouse(e)
 }
 
 fn (mut g Game) change_state(nstate State) {
@@ -80,13 +63,7 @@ fn on_event(e &gg.Event, mut g Game) {
 		return
 	}
 	if e.typ == .char {
-		match rune(e.char_code) {
-			`1` { g.choose_bin(.junk) }
-			`2` { g.choose_bin(.metal) }
-			`3` { g.choose_bin(.plastic) }
-			`4` { g.choose_bin(.organic) }
-			else {}
-		}
+		g.bins_on_key(e)
 		return
 	}
 	x := f32(e.mouse_x)
@@ -95,6 +72,7 @@ fn on_event(e &gg.Event, mut g Game) {
 }
 
 fn on_frame(mut g Game) {
+	g.song.work() or {}
 	g.ctx.begin()
 	g.ctx.draw_image(0, hheight, g.background.width, g.background.height, g.background)
 	g.ctx.draw_text(5, 0, 'level: ${g.level} | state: ${g.state} | bin: ${g.sbin}',
@@ -102,41 +80,13 @@ fn on_frame(mut g Game) {
 		size:  32
 	)
 	g.ctx.draw_line(0, hheight, gwidth, hheight, gg.light_gray)
-	for mut b in g.bins {
-		b.draw(g.ctx)
-	}
+	g.bins_draw()
 	g.ctx.end()
-	g.song.work() or {}
 }
 
 fn main() {
 	mut g := &Game{}
-	g.bins = [
-		Button{
-			kind:  .junk
-			pos:   Vec2{200, 510}
-			size:  Vec2{80, 33}
-			label: 'Junk'
-		},
-		Button{
-			kind:  .metal
-			pos:   Vec2{390, 510}
-			size:  Vec2{80, 33}
-			label: 'Metal'
-		},
-		Button{
-			kind:  .plastic
-			pos:   Vec2{570, 510}
-			size:  Vec2{80, 33}
-			label: 'Plastic'
-		},
-		Button{
-			kind:  .organic
-			pos:   Vec2{760, 510}
-			size:  Vec2{80, 33}
-			label: 'Organic'
-		},
-	]
+	g.bins_init()
 	g.restart()
 	g.song.play_ogg_file(asset.get_path('./assets', 'songs/collecting_garbage.ogg'))!
 	g.ctx = gg.new_context(

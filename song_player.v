@@ -91,13 +91,20 @@ fn (mut p SongPlayer) play_ogg_file(fpath string) ! {
 	println('> play_ogg_file: rate: ${p.sample_rate:5}, channels: ${p.channels:1} | stream rate: ${p.stream_rate:5}, channels: ${p.stream_channels:1}, samples: ${p.stream_len_samples:8} | seconds: ${p.stream_len_seconds:7.3f} | ${fpath}')
 }
 
+fn (mut p SongPlayer) restart() {
+	if p.decoder == unsafe { nil } {
+		return
+	}
+	C.stb_vorbis_seek_start(p.decoder)
+	p.finished = false
+}
+
 fn (mut p SongPlayer) work() ! {
 	if p.finished || p.paused {
 		return
 	}
 	frames := [16384]f32{}
 	pframes := unsafe { &frames[0] }
-
 	expected_frames := audio.expect()
 	if expected_frames > 0 {
 		mut decoded_frames := 0
@@ -114,7 +121,6 @@ fn (mut p SongPlayer) work() ! {
 		}
 	}
 	if p.finished {
-		C.stb_vorbis_seek_start(p.decoder)
-		p.finished = false
+		p.restart()
 	}
 }

@@ -11,7 +11,8 @@ fn rint(volume int) int {
 }
 
 enum Kind {
-	junk
+	glass
+	paper
 	metal
 	plastic
 	organic
