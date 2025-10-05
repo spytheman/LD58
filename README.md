@@ -5,7 +5,10 @@
 *Theme: Collector*
 *Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
 
-# Ideas:
+## Used resources:
+* NicoBold-Regular.ttf from https://emhuo.itch.io/nico-pixel-fonts-pack
+
+## Ideas:
 * walk around maze(s) (mario, sokoban, flappybird, pacman, keen, wolfenstain/doom ?)
 * collect items
 * shoot monsters
@@ -14,7 +17,7 @@
 * until the player hits some dangerous objects/pits/monsters?
 * each item gives some ability/score
 
-# Alternative idea:
+## Alternative idea:
 Goal: collect all the garbage items from a garden/forest into different bins.
 A time bar gradually fills up, when it is full, or when all items are cleared,
 the game round ends and stats are shown. After a click on the stats, another level loads up,
@@ -51,9 +54,9 @@ On level change, the difficulty increases by increasing the amount of initial it
 * books
 * souls
 
-# TODO:
+## TODO:
 * Gameplay
 * Sound/effects
-* Music
 
-# DONE:
+## DONE:
+* Music
