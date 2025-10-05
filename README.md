@@ -1,11 +1,9 @@
 # Description
 *Event: https://ldjam.com/events/ludum-dare/58*
-
-*Date: Saturday October 4th to Tuesday October 7th, 2025 ; starts at 1:00 AM EEST*
-
-*Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
-
+*Starts: Saturday October 4th; starts at 1:00 AM EEST*
+*Ends: Monday at 1:00 AM EEST*
 *Theme: Collector*
+*Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
 
 # Ideas:
 * walk around maze(s) (mario, sokoban, flappybird, pacman, keen, wolfenstain/doom ?)
