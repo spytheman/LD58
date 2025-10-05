@@ -9,7 +9,7 @@ const gwidth = 948
 const gheight = 533
 
 enum State {
-	running
+	working
 	paused
 	finished
 }
@@ -17,19 +17,19 @@ enum State {
 @[heap]
 struct Game {
 mut:
-	ctx          &gg.Context = unsafe { nil }
-	level        int         = 1
-	state        State       = .running
-	mute_btn     Button
-	bins         []Button
-	sbin         ?Kind
-	level_images []gg.Image
-	background   gg.Image
-	song         &SongPlayer = new_song_player()
-	spos         Vec2
-	epos         Vec2
-	player       Player
-	items        []Item
+	ctx        &gg.Context = unsafe { nil }
+	day        int         = 1
+	state      State
+	mute_btn   Button
+	bins       []Button
+	sbin       ?Kind
+	day_images []gg.Image
+	background gg.Image
+	song       &SongPlayer = new_song_player()
+	spos       Vec2
+	epos       Vec2
+	player     Player
+	items      []Item
 	//
 	potential_item_positions []Vec2
 }
@@ -42,14 +42,15 @@ struct Item {
 
 struct Player {
 mut:
-	pos   Vec2
-	speed Vec2
-	angle f32
-	img   gg.Image
+	pos    Vec2
+	speed  Vec2
+	meters u64
+	angle  f32
+	img    gg.Image
 }
 
 fn (mut g Game) restart() {
-	g.next_level(g.level)
+	g.next_day(g.day)
 	g.song.restart()
 }
 
@@ -72,8 +73,8 @@ fn (mut g Game) on_develop(e &gg.Event) {
 	if e.typ == .key_down {
 		match e.key_code {
 			.r { g.restart() }
-			.page_up { g.next_level(g.level + 1) }
-			.page_down { g.next_level(g.level - 1) }
+			.page_up { g.next_day(g.day + 1) }
+			.page_down { g.next_day(g.day - 1) }
 			else {}
 		}
 	}
@@ -92,14 +93,14 @@ fn on_event(e &gg.Event, mut g Game) {
 	}
 	pause_key := e.key_code in [.space, .p]
 	if g.state == .paused && e.typ == .key_up && pause_key {
-		g.change_state(.running)
+		g.change_state(.working)
 		return
 	}
-	if g.state == .running && e.typ == .key_up && pause_key {
+	if g.state == .working && e.typ == .key_up && pause_key {
 		g.change_state(.paused)
 		return
 	}
-	if g.state != .running {
+	if g.state != .working {
 		return
 	}
 	if e.typ == .key_down {
@@ -130,11 +131,11 @@ fn on_event(e &gg.Event, mut g Game) {
 	g.on_mouse(x, y, e)
 }
 
-fn (mut g Game) next_level(nlevel int) {
-	g.level = nlevel
-	if g.level_images.len > 0 {
-		lidx := int_max(0, g.level) % g.level_images.len
-		g.background = g.level_images[lidx]
+fn (mut g Game) next_day(nday int) {
+	g.day = nday
+	if g.day_images.len > 0 {
+		lidx := int_max(0, g.day) % g.day_images.len
+		g.background = g.day_images[lidx]
 	}
 	g.find_start_and_exit_spots()
 	g.player.speed.zero()
@@ -152,9 +153,10 @@ fn (mut g Game) player_move() {
 		}
 	}
 	g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
+	g.player.meters += u64(g.player.speed.magnitude())
 	nc := g.bgpixel(g.player.pos)
 	if nc == gg.blue {
-		g.next_level(g.level + 1)
+		g.next_day(g.day + 1)
 	}
 }
 
@@ -176,8 +178,8 @@ fn on_frame(mut g Game) {
 	g.player_move()
 	g.bins_draw()
 	g.mute_btn.draw(g.ctx)
-	g.ctx.draw_text(gwidth - 85, gheight - 34, '${g.state}', color: gg.gray)
-	g.ctx.draw_text(gwidth - 85, gheight - 18, 'Level: ${g.level}', color: gg.gray)
+	g.ctx.draw_text(gwidth - 107, gheight - 34, '${g.state}, day: ${g.day:03}', color: gg.gray)
+	g.ctx.draw_text(gwidth - 85, gheight - 18, '${g.player.meters:06}m', color: gg.gray)
 	g.ctx.end()
 }
 
@@ -250,9 +252,9 @@ fn main() {
 	g.player.img = g.ctx.create_image(asset.get_path('./assets', 'images/player.png'))!
 	for i in 0 .. 7 + 1 {
 		ipath := asset.get_path('./assets', 'images/${i}.png')
-		g.level_images << g.ctx.create_image(ipath)!
+		g.day_images << g.ctx.create_image(ipath)!
 	}
-	g.background = g.level_images[1]
+	g.background = g.day_images[1]
 	g.find_start_and_exit_spots()
 	g.ctx.run()
 }
