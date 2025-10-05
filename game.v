@@ -80,55 +80,55 @@ fn (mut g Game) on_develop(e &gg.Event) {
 	}
 }
 
-fn on_event(e &gg.Event, mut g Game) {
-	g.on_develop(e)
-	if e.typ == .key_down && e.key_code == .escape {
-		g.ctx.quit()
-	}
-	if e.typ == .char && rune(e.char_code) == `m` {
-		g.song.mute()
-	}
-	if g.state == .finished {
+fn (mut g Game) bgpixel(pos Vec2) gg.Color {
+	x, y := int_max(0, int_min(g.background.width - 1, int(pos.x))), int_max(0, int_min(g.background.height - 1,
+		int(pos.y)))
+	return unsafe { &gg.Color(g.background.data)[y * g.background.width + x] }
+}
+
+fn (mut g Game) find_start_and_exit_spots() {
+	g.potential_item_positions.clear()
+	g.items.clear()
+	g.player.pos.zero()
+	g.spos.zero()
+	g.epos.zero()
+	bp := unsafe { &gg.Color(g.background.data) }
+	if isnil(bp) {
 		return
 	}
-	pause_key := e.key_code in [.space, .p]
-	if g.state == .paused && e.typ == .key_up && pause_key {
-		g.change_state(.working)
-		return
-	}
-	if g.state == .working && e.typ == .key_up && pause_key {
-		g.change_state(.paused)
-		return
-	}
-	if g.state != .working {
-		return
-	}
-	if e.typ == .key_down {
-		g.bins_on_key(e)
-		match e.key_code {
-			.w, .up {
-				g.player.speed = Vec2{0, -1}
-				g.player.angle = 0
+	for y in 0 .. gheight {
+		for x in 0 .. gwidth {
+			c := unsafe { *bp }
+			unsafe { bp++ }
+			if c.a >= 100 && c.a <= 200 {
+				pos := Vec2{x, y}
+				_ = pos.str() // TODO: this is needed for tcc, investigate why
+				if c.r == 255 {
+					g.spos = pos
+					g.player.pos = g.spos
+				}
+				if c.b == 255 {
+					g.epos = pos
+				}
+				if c.g == 255 {
+					g.potential_item_positions << pos
+				}
 			}
-			.s, .down {
-				g.player.speed = Vec2{0, 1}
-				g.player.angle = math.pi
-			}
-			.a, .left {
-				g.player.speed = Vec2{-1, 0}
-				g.player.angle = math.pi / 2
-			}
-			.d, .right {
-				g.player.speed = Vec2{1, 0}
-				g.player.angle = -math.pi / 2
-			}
-			else {}
 		}
+	}
+	g.add_items_on_some_positions()
+}
+
+fn (mut g Game) add_items_on_some_positions() {
+	positions := rand.choose(g.potential_item_positions, int_max(5, g.potential_item_positions.len / 5)) or {
 		return
 	}
-	x := f32(e.mouse_x)
-	y := f32(e.mouse_y)
-	g.on_mouse(x, y, e)
+	for ipos in positions {
+		g.items << Item{
+			pos:  ipos
+			kind: unsafe { Kind(rand.int_in_range(0, 4) or { 0 }) }
+		}
+	}
 }
 
 fn (mut g Game) next_day(nday int) {
@@ -189,51 +189,55 @@ fn on_frame(mut g Game) {
 	g.ctx.end()
 }
 
-fn (mut g Game) bgpixel(pos Vec2) gg.Color {
-	x, y := int_max(0, int_min(g.background.width - 1, int(pos.x))), int_max(0, int_min(g.background.height - 1,
-		int(pos.y)))
-	return unsafe { &gg.Color(g.background.data)[y * g.background.width + x] }
-}
-
-fn (mut g Game) find_start_and_exit_spots() {
-	g.potential_item_positions.clear()
-	g.items.clear()
-	g.player.pos.zero()
-	g.spos.zero()
-	g.epos.zero()
-	bp := unsafe { &gg.Color(g.background.data) }
-	if isnil(bp) {
+fn on_event(e &gg.Event, mut g Game) {
+	g.on_develop(e)
+	if e.typ == .key_down && e.key_code == .escape {
+		g.ctx.quit()
+	}
+	if e.typ == .char && rune(e.char_code) == `m` {
+		g.song.mute()
+	}
+	if g.state == .finished {
 		return
 	}
-	for y in 0 .. gheight {
-		for x in 0 .. gwidth {
-			c := unsafe { *bp }
-			unsafe { bp++ }
-			if c.a >= 100 && c.a <= 200 {
-				pos := Vec2{x, y}
-				_ = pos.str() // TODO: this is needed for tcc, investigate why
-				if c.r == 255 {
-					g.spos = pos
-					g.player.pos = g.spos
-				}
-				if c.b == 255 {
-					g.epos = pos
-				}
-				if c.g == 255 {
-					g.potential_item_positions << pos
-				}
+	pause_key := e.key_code in [.space, .p]
+	if g.state == .paused && e.typ == .key_up && pause_key {
+		g.change_state(.working)
+		return
+	}
+	if g.state == .working && e.typ == .key_up && pause_key {
+		g.change_state(.paused)
+		return
+	}
+	if g.state != .working {
+		return
+	}
+	if e.typ == .key_down {
+		g.bins_on_key(e)
+		match e.key_code {
+			.w, .up {
+				g.player.speed = Vec2{0, -1}
+				g.player.angle = 0
 			}
+			.s, .down {
+				g.player.speed = Vec2{0, 1}
+				g.player.angle = math.pi
+			}
+			.a, .left {
+				g.player.speed = Vec2{-1, 0}
+				g.player.angle = math.pi / 2
+			}
+			.d, .right {
+				g.player.speed = Vec2{1, 0}
+				g.player.angle = -math.pi / 2
+			}
+			else {}
 		}
+		return
 	}
-	positions := rand.choose(g.potential_item_positions, int_max(5, g.potential_item_positions.len / 5)) or {
-		[]
-	}
-	for ipos in positions {
-		g.items << Item{
-			pos:  ipos
-			kind: unsafe { Kind(rand.int_in_range(0, 4) or { 0 }) }
-		}
-	}
+	x := f32(e.mouse_x)
+	y := f32(e.mouse_y)
+	g.on_mouse(x, y, e)
 }
 
 fn main() {
