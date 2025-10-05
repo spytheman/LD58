@@ -1,7 +1,9 @@
 module main
 
 import gg
+import log
 import os.asset
+import math
 
 const gwidth = 948
 const gheight = 533
@@ -22,9 +24,30 @@ mut:
 	sbin       ?Kind
 	background gg.Image
 	song       &SongPlayer = new_song_player()
+	spos       Vec2
+	epos       Vec2
+	player     Player
+	items      []Item
+	//
+	potential_item_positions []Vec2
+}
+
+struct Item {
+	pos  Vec2
+	img  gg.Image
+	kind Kind
+}
+
+struct Player {
+mut:
+	pos   Vec2
+	speed Vec2
+	angle f32
+	img   gg.Image
 }
 
 fn (mut g Game) restart() {
+	g.player.pos = g.spos
 	g.song.restart()
 }
 
@@ -63,6 +86,25 @@ fn on_event(e &gg.Event, mut g Game) {
 	}
 	if e.typ == .char {
 		g.bins_on_key(e)
+		match rune(e.char_code) {
+			`w` {
+				g.player.speed = Vec2{0, -1}
+				g.player.angle = 0
+			}
+			`s` {
+				g.player.speed = Vec2{0, 1}
+				g.player.angle = math.pi
+			}
+			`a` {
+				g.player.speed = Vec2{-1, 0}
+				g.player.angle = math.pi / 2
+			}
+			`d` {
+				g.player.speed = Vec2{1, 0}
+				g.player.angle = -math.pi / 2
+			}
+			else {}
+		}
 		return
 	}
 	x := f32(e.mouse_x)
@@ -70,14 +112,67 @@ fn on_event(e &gg.Event, mut g Game) {
 	g.on_mouse(x, y, e)
 }
 
+fn (mut g Game) player_move() {
+	bpos := g.player.pos + g.player.speed.mul_scalar(10)
+	c := g.bgpixel(bpos)
+	if c.a == 0 {
+		g.player.pos = g.player.pos + g.player.speed.mul_scalar(2)
+	}
+}
+
 fn on_frame(mut g Game) {
 	g.song.work() or {}
+	g.player_move()
 	g.ctx.begin()
 	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
+	for p in g.potential_item_positions {
+		g.ctx.draw_rect_filled(p.x, p.y, 5, 5, gg.green)
+	}
+	g.ctx.draw_image_with_config(
+		img_rect: gg.Rect{
+			x: g.player.pos.x - g.player.img.width / 2
+			y: g.player.pos.y - g.player.img.height / 2
+		}
+		img:      &g.player.img
+		rotation: f32(math.degrees(g.player.angle))
+	)
 	g.bins_draw()
-	g.ctx.draw_text(15, gheight - 23, 'Level: ${g.level}', color: gg.green, size: 14)
-	g.ctx.draw_text(gwidth - 85, gheight - 23, '${g.state}', color: gg.green, size: 14)
+	g.ctx.draw_text(gwidth - 85, gheight - 24, 'Level: ${g.level}', color: gg.green, size: 14)
+	g.ctx.draw_text(15, gheight - 24, '${g.state}', color: gg.green, size: 14)
 	g.ctx.end()
+}
+
+fn (mut g Game) bgpixel(pos Vec2) gg.Color {
+	x, y := int_max(0, int_min(g.background.width - 1, int(pos.x))), int_max(0, int_min(g.background.height - 1,
+		int(pos.y)))
+	return unsafe { &gg.Color(g.background.data)[y * g.background.width + x] }
+}
+
+fn (mut g Game) find_start_and_exit_spots() {
+	log.info('>start find_start_and_exit_spots')
+	defer { log.info('>end') }
+	bp := unsafe { &gg.Color(g.background.data) }
+	for y in 0 .. gheight {
+		for x in 0 .. gwidth {
+			c := unsafe { *bp }
+			unsafe { bp++ }
+			if c.a >= 120 && c.a <= 128 {
+				pos := Vec2{x, y}
+				if c.r == 255 {
+					log.info('> entry | c: ${c} | x: ${x} | y: ${y}')
+					g.spos = pos
+					g.player.pos = g.spos
+				}
+				if c.b == 255 {
+					log.info('> exit  | c: ${c} | x: ${x} | y: ${y}')
+					g.epos = pos
+				}
+				if c.g == 255 {
+					g.potential_item_positions << pos
+				}
+			}
+		}
+	}
 }
 
 fn main() {
@@ -86,7 +181,7 @@ fn main() {
 	g.restart()
 	g.song.play_ogg_file(asset.get_path('./assets', 'songs/collecting_garbage.ogg'))!
 	g.ctx = gg.new_context(
-		bg_color:     gg.black
+		bg_color:     gg.white
 		width:        gwidth
 		height:       gheight
 		window_title: 'Garbage Collector (LD58)'
@@ -96,7 +191,10 @@ fn main() {
 		font_path:    asset.get_path('./assets', 'fonts/NicoBold-Regular.ttf')
 		sample_count: 2
 	)
-	garden_path := asset.get_path('./assets', 'images/garden_path.png')
+	garden_path := asset.get_path('./assets', 'images/orthogonal_maze_with_20_by_20_cells.png')
+	player_path := asset.get_path('./assets', 'images/player.png')
 	g.background = g.ctx.create_image(garden_path)!
+	g.player.img = g.ctx.create_image(player_path)!
+	g.find_start_and_exit_spots()
 	g.ctx.run()
 }

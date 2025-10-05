@@ -88,7 +88,7 @@ fn (mut p SongPlayer) play_ogg_file(fpath string) ! {
 		p.sample_rate = audio.sample_rate()
 		p.channels = audio.channels()
 	}
-	println('> play_ogg_file: rate: ${p.sample_rate:5}, channels: ${p.channels:1} | stream rate: ${p.stream_rate:5}, channels: ${p.stream_channels:1}, samples: ${p.stream_len_samples:8} | seconds: ${p.stream_len_seconds:7.3f} | ${fpath}')
+	// println('> play_ogg_file: rate: ${p.sample_rate:5}, channels: ${p.channels:1} | stream rate: ${p.stream_rate:5}, channels: ${p.stream_channels:1}, samples: ${p.stream_len_samples:8} | seconds: ${p.stream_len_seconds:7.3f} | ${fpath}')
 }
 
 fn (mut p SongPlayer) restart() {
