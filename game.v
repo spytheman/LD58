@@ -17,17 +17,18 @@ enum State {
 @[heap]
 struct Game {
 mut:
-	ctx        &gg.Context = unsafe { nil }
-	level      int         = 1
-	state      State       = .running
-	bins       []Button
-	sbin       ?Kind
-	background gg.Image
-	song       &SongPlayer = new_song_player()
-	spos       Vec2
-	epos       Vec2
-	player     Player
-	items      []Item
+	ctx          &gg.Context = unsafe { nil }
+	level        int         = 1
+	state        State       = .running
+	bins         []Button
+	sbin         ?Kind
+	level_images []gg.Image
+	background   gg.Image
+	song         &SongPlayer = new_song_player()
+	spos         Vec2
+	epos         Vec2
+	player       Player
+	items        []Item
 	//
 	potential_item_positions []Vec2
 }
@@ -86,6 +87,9 @@ fn on_event(e &gg.Event, mut g Game) {
 	if e.typ == .key_down {
 		g.bins_on_key(e)
 		match e.key_code {
+			.page_up {
+				g.next_level()
+			}
 			.w, .up {
 				g.player.speed = Vec2{0, -1}
 				g.player.angle = 0
@@ -113,13 +117,19 @@ fn on_event(e &gg.Event, mut g Game) {
 
 fn (mut g Game) next_level() {
 	g.level++
-	g.player.pos = g.spos
+	dump(g.level)
+	dump(g.level_images.len)
+	lidx := g.level % g.level_images.len
+	dump(lidx)
+	g.background = g.level_images[lidx]
+	dump(g.background)
+	g.find_start_and_exit_spots()
 	g.player.speed.zero()
 }
 
 fn (mut g Game) player_move() {
 	size := 2
-	npos := g.player.pos + g.player.speed.mul_scalar(12)
+	npos := g.player.pos + g.player.speed.mul_scalar(5)
 	for y in int(npos.y - size) .. int(npos.y + size) {
 		for x in int(npos.x - size) .. int(npos.x + size) {
 			c := g.bgpixel(x: x, y: y)
@@ -166,6 +176,10 @@ fn (mut g Game) bgpixel(pos Vec2) gg.Color {
 fn (mut g Game) find_start_and_exit_spots() {
 	log.info('>start find_start_and_exit_spots')
 	defer { log.info('>end') }
+	g.potential_item_positions.clear()
+	g.player.pos.zero()
+	g.spos.zero()
+	g.epos.zero()
 	bp := unsafe { &gg.Color(g.background.data) }
 	for y in 0 .. gheight {
 		for x in 0 .. gwidth {
@@ -174,12 +188,10 @@ fn (mut g Game) find_start_and_exit_spots() {
 			if c.a >= 120 && c.a <= 128 {
 				pos := Vec2{x, y}
 				if c.r == 255 {
-					log.info('> entry | c: ${c} | x: ${x} | y: ${y}')
 					g.spos = pos
 					g.player.pos = g.spos
 				}
 				if c.b == 255 {
-					log.info('> exit  | c: ${c} | x: ${x} | y: ${y}')
 					g.epos = pos
 				}
 				if c.g == 255 {
@@ -206,10 +218,12 @@ fn main() {
 		font_path:    asset.get_path('./assets', 'fonts/NicoBold-Regular.ttf')
 		sample_count: 2
 	)
-	garden_path := asset.get_path('./assets', 'images/orthogonal_maze_with_20_by_20_cells.png')
-	player_path := asset.get_path('./assets', 'images/player.png')
-	g.background = g.ctx.create_image(garden_path)!
-	g.player.img = g.ctx.create_image(player_path)!
+	g.player.img = g.ctx.create_image(asset.get_path('./assets', 'images/player.png'))!
+	for i in 0 .. 7 + 1 {
+		ipath := asset.get_path('./assets', 'images/${i}.png')
+		g.level_images << g.ctx.create_image(ipath)!
+	}
+	g.background = g.level_images[1]
 	g.find_start_and_exit_spots()
 	g.ctx.run()
 }
