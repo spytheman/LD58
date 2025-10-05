@@ -25,7 +25,6 @@ mut:
 }
 
 fn (mut g Game) restart() {
-	eprintln('>> ${@LOCATION}')
 }
 
 fn (mut g Game) choose_bin(kind Kind) {
