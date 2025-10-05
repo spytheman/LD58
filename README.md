@@ -8,5 +8,7 @@
 ## Used resources:
 * Imprima-Regular.ttf from https://www.1001freefonts.com/imprima.font
 * mazes from https://www.mazegenerator.net/
-
 * The V programming language from https://github.com/vlang/v
+
+## Screenshot:
+![Screenshot](screenshot_ld58.png)
