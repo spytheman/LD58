@@ -71,9 +71,9 @@ fn (mut btn Button) draw(ctx &gg.Context) {
 		ctx.draw_rounded_rect_filled(tx + 2, ty + 2, btn.size.x - 4, btn.size.y - 4, 10,
 			btn.color)
 	}
-	ctx.draw_text(int(btn.pos.x) + dx / 2, int(btn.pos.y) + dy / 2 - 8, btn.label,
+	ctx.draw_text(int(btn.pos.x) + dx / 2, int(btn.pos.y) + dy / 2 - 6, btn.label,
 		color: gg.black
-		size:  20
+		size:  16
 		align: .center
 	)
 }

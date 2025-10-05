@@ -5,7 +5,6 @@ import os.asset
 
 const gwidth = 948
 const gheight = 533
-const hheight = 33
 
 enum State {
 	running
@@ -74,13 +73,10 @@ fn on_event(e &gg.Event, mut g Game) {
 fn on_frame(mut g Game) {
 	g.song.work() or {}
 	g.ctx.begin()
-	g.ctx.draw_image(0, hheight, g.background.width, g.background.height, g.background)
-	g.ctx.draw_text(5, 0, 'level: ${g.level} | state: ${g.state} | bin: ${g.sbin}',
-		color: gg.green
-		size:  32
-	)
-	g.ctx.draw_line(0, hheight, gwidth, hheight, gg.light_gray)
+	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
 	g.bins_draw()
+	g.ctx.draw_text(15, gheight - 23, 'Level: ${g.level}', color: gg.green, size: 14)
+	g.ctx.draw_text(gwidth - 85, gheight - 23, '${g.state}', color: gg.green, size: 14)
 	g.ctx.end()
 }
 
