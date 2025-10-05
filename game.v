@@ -158,6 +158,12 @@ fn (mut g Game) player_move() {
 	if nc == gg.blue {
 		g.next_day(g.day + 1)
 	}
+	for item_idx, mut item in g.items {
+		if g.player.pos.distance(item.pos) < g.player.img.width / 2 {
+			g.items.delete(item_idx)
+			break
+		}
+	}
 }
 
 fn on_frame(mut g Game) {
