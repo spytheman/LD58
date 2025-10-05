@@ -150,7 +150,7 @@ fn main() {
 		font_path:    asset.get_path('./assets', 'fonts/Imprima-Regular.ttf')
 		sample_count: 2
 	)
-	garden_path := asset.get_path('./assets', 'garden_path.png')
+	garden_path := asset.get_path('./assets', 'images/garden_path.png')
 	g.background = g.ctx.create_image(garden_path)!
 	g.ctx.run()
 }
