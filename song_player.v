@@ -113,4 +113,8 @@ fn (mut p SongPlayer) work() ! {
 			p.pos += samples
 		}
 	}
+	if p.finished {
+		C.stb_vorbis_seek_start(p.decoder)
+		p.finished = false
+	}
 }
