@@ -22,6 +22,7 @@ mut:
 	bins       []Button
 	sbin       ?Kind
 	background gg.Image
+	song       &SongPlayer = new_song_player()
 }
 
 fn (mut g Game) restart() {
@@ -50,6 +51,11 @@ fn (mut g Game) on_mouse(x f32, y f32, e &gg.Event) {
 	}
 }
 
+fn (mut g Game) change_state(nstate State) {
+	g.state = nstate
+	g.song.pause(nstate == .paused)
+}
+
 fn on_event(e &gg.Event, mut g Game) {
 	if e.typ == .key_down {
 		match e.key_code {
@@ -63,11 +69,11 @@ fn on_event(e &gg.Event, mut g Game) {
 		return
 	}
 	if g.state == .paused && e.typ == .key_up && e.key_code == .space {
-		g.state = .running
+		g.change_state(.running)
 		return
 	}
 	if g.state == .running && e.typ == .key_up && e.key_code == .space {
-		g.state = .paused
+		g.change_state(.paused)
 		return
 	}
 	if g.state != .running {
@@ -100,6 +106,7 @@ fn on_frame(mut g Game) {
 		b.draw(g.ctx)
 	}
 	g.ctx.end()
+	g.song.work() or {}
 }
 
 fn main() {
@@ -131,6 +138,7 @@ fn main() {
 		},
 	]
 	g.restart()
+	g.song.play_ogg_file(asset.get_path('./assets', 'songs/collecting_garbage.ogg'))!
 	g.ctx = gg.new_context(
 		bg_color:     gg.black
 		width:        gwidth
