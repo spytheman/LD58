@@ -97,7 +97,7 @@ fn main() {
 		user_data:    g
 		frame_fn:     on_frame
 		event_fn:     on_event
-		font_path:    asset.get_path('./assets', 'fonts/Imprima-Regular.ttf')
+		font_path:    asset.get_path('./assets', 'fonts/NicoBold-Regular.ttf')
 		sample_count: 2
 	)
 	garden_path := asset.get_path('./assets', 'images/garden_path.png')

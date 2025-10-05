@@ -6,7 +6,7 @@ fn (mut g Game) bins_init() {
 	bbase := 170
 	bstep := 150
 	btop := 515
-	bsize := Vec2{90, 33}
+	bsize := Vec2{140, 33}
 	g.bins = [
 		Button{
 			kind:  .glass
