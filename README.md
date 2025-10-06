@@ -1,9 +1,14 @@
-\# Description
+# Description
 *Event: https://ldjam.com/events/ludum-dare/58*
 *Starts: Saturday October 4th; starts at 1:00 AM EEST*
 *Ends: Monday at 1:00 AM EEST*
 *Theme: Collector*
 *Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
+
+# Released on:
+* URL4E: https://url4e.com/tmp/ld58/index.html
+* Itch.io: https://spytheman.itch.io/ld-58-garbage-collector
+* Ludum Dare: https://ldjam.com/events/ludum-dare/58/garbage-collector
 
 ## Screenshots:
 ![Screenshot](screenshot.webp)
