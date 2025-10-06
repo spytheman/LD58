@@ -285,6 +285,7 @@ fn on_frame(mut g Game) {
 
 fn on_event(e &gg.Event, mut g Game) {
 	g.on_develop(e)
+	g.song.on_event(e)
 	if e.typ == .key_down && e.key_code == .escape {
 		g.ctx.quit()
 	}

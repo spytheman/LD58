@@ -1,6 +1,6 @@
 module main
 
-#flag wasm32_emscripten -sINITIAL_MEMORY=65536000
+#flag wasm32_emscripten -sINITIAL_MEMORY=131072000
 #flag wasm32_emscripten --embed-file @DIR/assets/fonts/Imprima-Regular.ttf@/assets/fonts/Imprima-Regular.ttf
 #flag wasm32_emscripten --embed-file @DIR/assets/images/0.png@/assets/images/0.png
 #flag wasm32_emscripten --embed-file @DIR/assets/images/1.png@/assets/images/1.png

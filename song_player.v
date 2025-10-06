@@ -1,8 +1,11 @@
+import gg
 import sokol.audio
 import encoding.vorbis
 
 struct SongPlayer {
 mut:
+	inited             bool
+	song_path          string
 	channels           int
 	sample_rate        int
 	pos                int
@@ -20,6 +23,8 @@ mut:
 		alloc_buffer_length_in_bytes: 0
 	}
 	decoder            &C.stb_vorbis // TODO: cgen error with -cstrict -gcc, when this is = unsafe { nil } here
+	framebuffer        &f32 = unsafe { nil }
+	framebuffer_len    int  = 4 * 16384
 }
 
 pub fn new_song_player() &SongPlayer {
@@ -40,8 +45,23 @@ fn (mut p SongPlayer) pause(state bool) {
 	p.paused = state
 }
 
+fn (mut p SongPlayer) on_event(e &gg.Event) {
+	if p.inited {
+		return
+	}
+	if e.typ != .mouse_down {
+		return
+	}
+	p.init()
+	if p.song_path != '' {
+		p.play_ogg_file(p.song_path) or {}
+	}
+}
+
 fn (mut p SongPlayer) init() {
-	audio.setup()
+	p.inited = true
+	audio.setup(buffer_frames: 512)
+	p.framebuffer = unsafe { &f32(malloc(p.framebuffer_len)) }
 	p.sample_rate = audio.sample_rate()
 	p.channels = audio.channels()
 	alloc_size := 200 * 1024
@@ -73,7 +93,8 @@ fn (mut p SongPlayer) close_decoder() {
 }
 
 fn (mut p SongPlayer) play_ogg_file(fpath string) ! {
-	$if wasm32_emscripten {
+	p.song_path = fpath
+	if !p.inited {
 		return
 	}
 	p.close_decoder()
@@ -92,8 +113,9 @@ fn (mut p SongPlayer) play_ogg_file(fpath string) ! {
 	if !(p.channels == p.stream_channels && p.sample_rate == p.stream_rate) {
 		audio.shutdown()
 		audio.setup(
-			num_channels: p.stream_channels
-			sample_rate:  int(p.stream_rate)
+			buffer_frames: 512
+			num_channels:  p.stream_channels
+			sample_rate:   int(p.stream_rate)
 		)
 		p.sample_rate = audio.sample_rate()
 		p.channels = audio.channels()
@@ -110,25 +132,23 @@ fn (mut p SongPlayer) restart() {
 }
 
 fn (mut p SongPlayer) work() ! {
-	if p.finished || p.paused {
+	if p.finished || p.paused || !p.inited {
 		return
 	}
-	frames := [16384]f32{}
-	pframes := unsafe { &frames[0] }
 	expected_frames := audio.expect()
 	if expected_frames > 0 {
 		mut decoded_frames := 0
 		for decoded_frames < expected_frames {
 			samples := C.stb_vorbis_get_samples_float_interleaved(p.decoder, p.channels,
-				pframes, 1024)
+				p.framebuffer, 512)
 			if samples == 0 {
 				p.finished = true
 				break
 			}
 			if p.mute {
-				unsafe { vmemset(pframes, 0, frames.len * 4) }
+				unsafe { vmemset(p.framebuffer, 0, p.framebuffer_len) }
 			}
-			written_frames := audio.push(pframes, samples)
+			written_frames := audio.push(p.framebuffer, samples)
 			decoded_frames += written_frames
 			p.pos += samples
 		}
