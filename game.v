@@ -181,6 +181,12 @@ fn (mut g Game) player_move() {
 fn (mut g Game) items_draw() {
 	r := f32(math.degrees(g.rotation) / 90)
 	for idx, item in g.items {
+		mut irot := r + idx * 10
+		if g.sbin != none {
+			if g.sbin == item.kind {
+				irot *= 10
+			}
+		}
 		g.ctx.draw_image_with_config(
 			img_rect: gg.Rect{
 				x:      item.pos.x - item.img.width / 2
@@ -189,7 +195,7 @@ fn (mut g Game) items_draw() {
 				height: 32
 			}
 			img:      &item.img
-			rotation: r + idx * 10
+			rotation: irot
 		)
 	}
 }
