@@ -335,7 +335,6 @@ fn main() {
 	g.mute_init()
 	g.bins_init()
 	g.restart()
-	g.song.play_ogg_file(asset.get_path('./assets', 'songs/collecting_garbage.ogg'))!
 	g.ctx = gg.new_context(
 		bg_color:     gg.white
 		width:        gwidth
@@ -348,18 +347,5 @@ fn main() {
 		font_path:    asset.get_path('./assets', 'fonts/Imprima-Regular.ttf')
 		sample_count: 2
 	)
-	g.player.img = g.ctx.create_image(asset.get_path('./assets', 'images/player.png'))!
-	for i in 0 .. 7 + 1 {
-		ipath := asset.get_path('./assets', 'images/${i}.png')
-		g.day_images << &gg.Image{
-			...g.ctx.create_image(ipath)!
-		}
-	}
-	for path in all_item_paths {
-		ipath := asset.get_path('./assets', path)
-		g.all_item_images[path] = g.ctx.create_image(ipath)!
-	}
-	g.background = g.day_images[1]
-	g.find_start_and_exit_spots()
 	g.ctx.run()
 }

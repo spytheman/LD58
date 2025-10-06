@@ -26,7 +26,9 @@ pub fn new_song_player() &SongPlayer {
 	mut p := &SongPlayer{
 		decoder: unsafe { nil }
 	}
-	p.init()
+	$if !wasm32_emscripten {
+		p.init()
+	}
 	return p
 }
 
@@ -71,6 +73,9 @@ fn (mut p SongPlayer) close_decoder() {
 }
 
 fn (mut p SongPlayer) play_ogg_file(fpath string) ! {
+	$if wasm32_emscripten {
+		return
+	}
 	p.close_decoder()
 	p.pos = 0
 	p.xerror = .no_error
