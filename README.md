@@ -5,8 +5,11 @@
 *Theme: Collector*
 *Format: The Compo - 48 hour deadline, solo, from scratch (as much as is reasonable), and share your source code.*
 
-## Screenshot:
+## Screenshots:
 ![Screenshot](screenshot.webp)
+![Screenshot 2](screenshot_level_2.webp)
+![Screenshot 3](screenshot_level_3.webp)
+![Screenshot 4](screenshot_level_6.webp)
 
 ## Used resources:
 * The V programming language from https://github.com/vlang/v
