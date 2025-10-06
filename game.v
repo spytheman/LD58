@@ -141,6 +141,9 @@ fn (mut g Game) next_day(nday int) {
 }
 
 fn (mut g Game) player_move() {
+	if g.state == .paused {
+		return
+	}
 	size := 2
 	npos := g.player.pos + g.player.speed.mul_scalar(5)
 	for y in int(npos.y - size) .. int(npos.y + size) {
