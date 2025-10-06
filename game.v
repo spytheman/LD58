@@ -146,7 +146,7 @@ fn (mut g Game) player_move() {
 	if g.state == .paused {
 		return
 	}
-	for item_idx, mut item in g.items {
+	for mut item in g.items {
 		distance := g.player.pos.distance(item.pos)
 		if distance < g.player.img.width * 3 {
 			delta := (item.pos - g.player.pos).mul_scalar(0.05)
