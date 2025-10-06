@@ -38,6 +38,7 @@ mut:
 }
 
 struct Item {
+mut:
 	pos  Vec2
 	img  gg.Image
 	kind Kind
@@ -145,6 +146,28 @@ fn (mut g Game) player_move() {
 	if g.state == .paused {
 		return
 	}
+	for item_idx, mut item in g.items {
+		distance := g.player.pos.distance(item.pos)
+		if distance < g.player.img.width * 3 {
+			delta := (item.pos - g.player.pos).mul_scalar(0.05)
+			item.pos = item.pos - delta
+		}
+	}
+	for item_idx, mut item in g.items {
+		distance := g.player.pos.distance(item.pos)
+		if distance < g.player.img.width / 2 {
+			for mut b in g.bins {
+				if item.kind == b.kind {
+					b.counter++
+				}
+			}
+			g.items.delete(item_idx)
+			if g.items.len == 0 {
+				g.enable_exit()
+			}
+			break
+		}
+	}
 	size := 2
 	npos := g.player.pos + g.player.speed.mul_scalar(5)
 	for y in int(npos.y - size) .. int(npos.y + size) {
@@ -166,20 +189,6 @@ fn (mut g Game) player_move() {
 	nc := g.bgpixel(g.player.pos)
 	if nc == gg.green {
 		g.next_day(g.day + 1)
-	}
-	for item_idx, mut item in g.items {
-		if g.player.pos.distance(item.pos) < g.player.img.width / 2 {
-			for mut b in g.bins {
-				if item.kind == b.kind {
-					b.counter++
-				}
-			}
-			g.items.delete(item_idx)
-			if g.items.len == 0 {
-				g.enable_exit()
-			}
-			break
-		}
 	}
 }
 
