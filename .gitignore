@@ -3,3 +3,6 @@ LD58
 LD58.exe
 LD58.exp
 LD58.lib
+LD58.linux
+LD58.macos
+LD58.windows.exe
