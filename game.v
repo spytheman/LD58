@@ -73,6 +73,7 @@ fn (mut g Game) change_state(nstate State) {
 fn (mut g Game) on_develop(e &gg.Event) {
 	if e.typ == .key_down {
 		match e.key_code {
+			.e { g.enable_exit() }
 			.r { g.restart() }
 			.page_up { g.next_day(g.day + 1) }
 			.page_down { g.next_day(g.day - 1) }
@@ -281,10 +282,6 @@ fn on_event(e &gg.Event, mut g Game) {
 	if e.typ == .char && rune(e.char_code) == `m` {
 		g.mute_trigger()
 	}
-	if e.typ == .char && rune(e.char_code) == `e` {
-		g.enable_exit()
-	}
-
 	if g.state == .finished {
 		return
 	}
@@ -302,25 +299,21 @@ fn on_event(e &gg.Event, mut g Game) {
 	}
 	if e.typ == .key_down {
 		g.bins_on_key(e)
-		match e.key_code {
-			.w, .up {
-				g.player.speed = Vec2{0, -1}
-				g.player.angle = 0
-			}
-			.s, .down {
-				g.player.speed = Vec2{0, 1}
-				g.player.angle = math.pi
-			}
-			.a, .left {
-				g.player.speed = Vec2{-1, 0}
-				g.player.angle = math.pi / 2
-			}
-			.d, .right {
-				g.player.speed = Vec2{1, 0}
-				g.player.angle = -math.pi / 2
-			}
-			else {}
+		mut newspeed := Vec2{0, 0}
+		if g.ctx.is_key_down(.w) || g.ctx.is_key_down(.up) {
+			newspeed += Vec2{0, -1}
 		}
+		if g.ctx.is_key_down(.s) || g.ctx.is_key_down(.down) {
+			newspeed += Vec2{0, 1}
+		}
+		if g.ctx.is_key_down(.a) || g.ctx.is_key_down(.left) {
+			newspeed += Vec2{-1, 0}
+		}
+		if g.ctx.is_key_down(.d) || g.ctx.is_key_down(.right) {
+			newspeed += Vec2{1, 0}
+		}
+		g.player.speed = newspeed.normalize()
+		g.player.angle = Vec2{0, -1}.angle_between(g.player.speed)
 		return
 	}
 	x := f32(e.mouse_x)
