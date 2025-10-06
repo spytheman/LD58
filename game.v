@@ -178,14 +178,8 @@ fn (mut g Game) player_move() {
 	}
 }
 
-fn on_frame(mut g Game) {
-	if g.state != .paused {
-		g.rotation++
-	}
+fn (mut g Game) items_draw() {
 	r := f32(math.degrees(g.rotation) / 90)
-	g.song.work() or {}
-	g.ctx.begin()
-	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
 	for idx, item in g.items {
 		g.ctx.draw_image_with_config(
 			img_rect: gg.Rect{
@@ -198,6 +192,9 @@ fn on_frame(mut g Game) {
 			rotation: r + idx * 10
 		)
 	}
+}
+
+fn (mut g Game) player_draw() {
 	g.ctx.draw_image_with_config(
 		img_rect: gg.Rect{
 			x: g.player.pos.x - g.player.img.width / 2
@@ -206,7 +203,32 @@ fn on_frame(mut g Game) {
 		img:      &g.player.img
 		rotation: f32(math.degrees(g.player.angle))
 	)
+}
+
+fn (mut g Game) mute_init() {
+	g.mute_btn.pos = Vec2{45, gheight - 18}
+	g.mute_btn.size = Vec2{60, 33}
+	g.mute_btn.label = 'Mute'
+	g.mute_btn.label_y = 0
+	g.mute_btn.counter = -1
+}
+
+fn (mut g Game) mute_trigger() {
+	g.song.mute()
+	g.mute_btn.label = if g.song.mute { 'unMute' } else { 'Mute' }
+	g.mute_btn.shaking = 8
+}
+
+fn on_frame(mut g Game) {
+	if g.state != .paused {
+		g.rotation++
+	}
+	g.song.work() or {}
 	g.player_move()
+	g.ctx.begin()
+	g.ctx.draw_image(0, 0, g.background.width, g.background.height, g.background)
+	g.items_draw()
+	g.player_draw()
 	g.bins_draw()
 	g.mute_btn.draw(g.ctx)
 	g.ctx.draw_text(gwidth - 107, gheight - 34, '${g.state}, day: ${g.day:03}', color: gg.gray)
@@ -263,20 +285,6 @@ fn on_event(e &gg.Event, mut g Game) {
 	x := f32(e.mouse_x)
 	y := f32(e.mouse_y)
 	g.on_mouse(x, y, e)
-}
-
-fn (mut g Game) mute_init() {
-	g.mute_btn.pos = Vec2{45, gheight - 18}
-	g.mute_btn.size = Vec2{60, 33}
-	g.mute_btn.label = 'Mute'
-	g.mute_btn.label_y = 0
-	g.mute_btn.counter = -1
-}
-
-fn (mut g Game) mute_trigger() {
-	g.song.mute()
-	g.mute_btn.label = if g.song.mute { 'unMute' } else { 'Mute' }
-	g.mute_btn.shaking = 8
 }
 
 fn main() {
