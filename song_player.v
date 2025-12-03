@@ -83,6 +83,8 @@ fn (mut p SongPlayer) free() {
 	unsafe {
 		free(p.allocator.alloc_buffer)
 		p.allocator.alloc_buffer = nil
+		free(p.framebuffer)
+		p.framebuffer = nil
 	}
 }
 
@@ -90,6 +92,7 @@ fn (mut p SongPlayer) close_decoder() {
 	if !isnil(p.decoder) {
 		C.stb_vorbis_close(p.decoder)
 	}
+	p.decoder = unsafe { nil }
 }
 
 fn (mut p SongPlayer) play_ogg_file(fpath string) ! {
