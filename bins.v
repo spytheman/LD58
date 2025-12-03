@@ -56,12 +56,12 @@ fn (mut g Game) bins_on_mouse(e &gg.Event) {
 }
 
 fn (mut g Game) bins_on_key(e &gg.Event) {
-	match rune(e.key_code) {
-		`1` { g.bins_choose(.glass) }
-		`2` { g.bins_choose(.metal) }
-		`3` { g.bins_choose(.paper) }
-		`4` { g.bins_choose(.plastic) }
-		`5` { g.bins_choose(.organic) }
+	match e.key_code {
+		._1 { g.bins_choose(.glass) }
+		._2 { g.bins_choose(.metal) }
+		._3 { g.bins_choose(.paper) }
+		._4 { g.bins_choose(.plastic) }
+		._5 { g.bins_choose(.organic) }
 		else {}
 	}
 }
