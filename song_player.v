@@ -139,6 +139,9 @@ fn (mut p SongPlayer) work() ! {
 	if p.finished || p.paused || !p.inited {
 		return
 	}
+	if isnil(p.decoder) {
+		return
+	}
 	expected_frames := audio.expect()
 	if expected_frames > 0 {
 		mut decoded_frames := 0
@@ -150,7 +153,7 @@ fn (mut p SongPlayer) work() ! {
 				break
 			}
 			if p.mute {
-				unsafe { vmemset(p.framebuffer, 0, p.framebuffer_len) }
+				unsafe { vmemset(p.framebuffer, 0, samples * p.channels * int(sizeof(f32))) }
 			}
 			written_frames := audio.push(p.framebuffer, samples)
 			decoded_frames += written_frames
