@@ -326,7 +326,7 @@ fn on_event(e &gg.Event, mut g Game) {
 			g.player.speed = Vec2{}
 		} else {
 			g.player.speed = newspeed.normalize()
-			g.player.angle = Vec2{0, -1}.angle_between(g.player.speed)
+			g.player.angle = -Vec2{0, -1}.angle_between(g.player.speed)
 		}
 		return
 	}
