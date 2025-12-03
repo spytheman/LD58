@@ -74,6 +74,7 @@ fn (mut p SongPlayer) init() {
 fn (mut p SongPlayer) stop() {
 	p.free()
 	audio.shutdown()
+	p.inited = false
 }
 
 fn (mut p SongPlayer) free() {
