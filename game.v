@@ -322,8 +322,12 @@ fn on_event(e &gg.Event, mut g Game) {
 		if g.ctx.is_key_down(.d) || g.ctx.is_key_down(.right) {
 			newspeed += Vec2{1, 0}
 		}
-		g.player.speed = newspeed.normalize()
-		g.player.angle = Vec2{0, -1}.angle_between(g.player.speed)
+		if newspeed.magnitude() == 0 {
+			g.player.speed = Vec2{}
+		} else {
+			g.player.speed = newspeed.normalize()
+			g.player.angle = Vec2{0, -1}.angle_between(g.player.speed)
+		}
 		return
 	}
 	x := f32(e.mouse_x)
